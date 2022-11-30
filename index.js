@@ -1,5 +1,5 @@
 const superagent = require('superagent');
-var _ = require('lodash');
+const _ = require('lodash');
 
 async function getAssets() {
   try {
@@ -9,14 +9,8 @@ async function getAssets() {
       // res.body, res.headers, res.status
       return res.body.assets;
     } catch(error) {
-      // err.message, err.response
       throw new Error(error);
     }
-}
-
-function hasKeySetTo(obj,key,value)
-{
-    return obj.hasOwnProperty(key) && obj[key]==value;
 }
 
 async function parse(inputArray) {
@@ -27,30 +21,28 @@ async function parse(inputArray) {
 
   console.log('inputArray ->', inputArray);
   let assets = await getAssets();
-  //console.log('assests ->', assets);
   let assetsPicked = _.pick(assets, inputArray);
-  // console.log('assests ->', assets.assets['bootstrap-css']);
-  //console.log('assests ->', assetsPicked); 
 
   const map = new Map(Object.entries(assetsPicked));
-  //console.log(map); 
   
-  for (let [key, value] of map) {
-    
-    const mapVersion = new Map(Object.entries(value.versions));
-    for (let [key, val] of mapVersion) {
-      console.log(`${key}: ${val}`);
-      console.log(_.isArray(val));
-    }
-    console.log('---------------');
-    
-  } 
+  let assetList = [];
 
-  return Promise.resolve([]);
+  for (let [key, value] of map) {
+    if(!_.isEmpty(value.versions)) {
+      const mapVersion = new Map(Object.entries(value.versions));
+      for (let [key, val] of mapVersion) {
+        if(_.isArray(val)) {          
+          assetList.push(...val);
+        }
+        break; // as we are only taking the first key pair values     
+      }
+    }
+  }   
+  return Promise.resolve(assetList);
 }
 
-
-parse(['bootstrap', 'fliplet-core', 'moment', 'jquery', 'bootstrap-css']).then(function(assets) {
+//['bootstrap', 'fliplet-core', 'moment', 'jquery']
+parse(['bootstrap', 'bootstrap-css', 'fliplet-core', 'moment', 'jquery', 'bootstrap-css']).then(function(assets) {
   /*
    
    assets is expected to be an array with the
