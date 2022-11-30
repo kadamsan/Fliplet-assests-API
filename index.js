@@ -1,15 +1,22 @@
-const axios = require('axios');
+const superagent = require('superagent');
+var _ = require('lodash');
 
-async function getAssests() {
+async function getAssets() {
   try {
-    const config = {
-        headers: {'Access-Control-Allow-Origin': '*'}
-    };
-    const response = await axios.get('https://api.fliplet.com/v1/widgets/assets', config);
-    return response.data;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+      const res = await superagent
+        .get('https://api.fliplet.com/v1/widgets/assets');
+     
+      // res.body, res.headers, res.status
+      return res.body.assets;
+    } catch(error) {
+      // err.message, err.response
+      throw new Error(error);
+    }
+}
+
+function hasKeySetTo(obj,key,value)
+{
+    return obj.hasOwnProperty(key) && obj[key]==value;
 }
 
 async function parse(inputArray) {
@@ -18,14 +25,32 @@ async function parse(inputArray) {
   // 		note: you may need to use a CORS proxy
   // 2. parse the inputArray into a list of assets using the above list
 
-  let assests = await getAssests();
-  console.log('assests ->', assests);
+  console.log('inputArray ->', inputArray);
+  let assets = await getAssets();
+  //console.log('assests ->', assets);
+  let assetsPicked = _.pick(assets, inputArray);
+  // console.log('assests ->', assets.assets['bootstrap-css']);
+  //console.log('assests ->', assetsPicked); 
+
+  const map = new Map(Object.entries(assetsPicked));
+  //console.log(map); 
+  
+  for (let [key, value] of map) {
+    
+    const mapVersion = new Map(Object.entries(value.versions));
+    for (let [key, val] of mapVersion) {
+      console.log(`${key}: ${val}`);
+      console.log(_.isArray(val));
+    }
+    console.log('---------------');
+    
+  } 
 
   return Promise.resolve([]);
 }
 
 
-parse(['bootstrap', 'fliplet-core', 'moment', 'jquery']).then(function(assets) {
+parse(['bootstrap', 'fliplet-core', 'moment', 'jquery', 'bootstrap-css']).then(function(assets) {
   /*
    
    assets is expected to be an array with the

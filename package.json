@@ -12,6 +12,9 @@
   "dependencies": {
     "@types/node": "^18.0.6",
     "axios": "^1.2.0",
-    "node-fetch": "^3.2.6"
+    "lodash": "^4.17.21",
+    "node-fetch": "^3.2.6",
+    "request": "^2.88.2",
+    "superagent": "^8.0.4"
   }
 }
